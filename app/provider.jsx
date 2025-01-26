@@ -8,7 +8,7 @@ function Provider({ children }) {
     const [messages, setMessages] = useState([]);
     return (
         <div>
-            <MessagesContext.Provider value={{}}>{children}
+            <MessagesContext.Provider value={{messages, setMessages}}>
                 <NextThemesProvider
                     attribute="class"
                     defaultTheme="dark"

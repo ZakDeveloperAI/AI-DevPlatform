@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import { ThemeProvider as NextThemesProvider } from "next-themes"
 import Header from '@/components/custom/Header'
 import { MessagesContext } from '@/context/MessagesContext'
+import { UserDetailContext } from '@/context/UserDetailContext'
 
 function Provider({ children }) {
     const [messages, setMessages] = useState([]);

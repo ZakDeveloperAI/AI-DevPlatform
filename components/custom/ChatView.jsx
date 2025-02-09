@@ -4,11 +4,14 @@ import { UserDetailContext } from '@/context/UserDetailContext';
 import { api } from '@/convex/_generated/api';
 import Colors from '@/data/Colors';
 import Lookup from '@/data/Lookup';
-import { useConvex } from 'convex/react';
+import { useConvex, useMutation } from 'convex/react';
 import Image from 'next/image';
-import { ArrowRight, Link } from 'lucide-react'
+import { ArrowRight, Link, Loader2Icon } from 'lucide-react'
 import { useParams } from 'next/navigation';
 import React, { useContext, useEffect, useState } from 'react'
+import axios from 'axios';
+import Prompt from '@/data/Prompt';
+import ReactMarkdown from 'react-markdown';
 
 function ChatView() {
     const {id}=useParams();
@@ -16,7 +19,8 @@ function ChatView() {
     const {userDetail, setUserDetail}=useContext(UserDetailContext);
     const {messages, setMessages}=useContext(MessagesContext);
     const [userInput, setUserInput] = useState();
-
+    const [loading, setLoading] = useState(false);
+    const UpdateMessages=useMutation(api.workspace.UpdateMessages);
     useEffect(() => {
         id && GetWorkspaceData();
     },[id])
@@ -27,20 +31,70 @@ function ChatView() {
         setMessages(result.messages);
         console.log(result);
     }
-  return (
+
+    useEffect(() => {
+        if(messages?.length>0)
+        {
+            const role=messages[messages.length-1]?.role;
+            if(role=='user')
+            {
+                GetAiResponse();
+            }
+        }
+    },[messages])
+
+    const GetAiResponse=async()=>{
+        setLoading(true);
+        const PROMPT=JSON.stringify(messages)+Prompt.CHAT_PROMPT;
+        const result=await axios.post('/api/ai-chat', {
+            prompt:PROMPT
+        });
+
+        const aiResp={
+            role:'ai',
+            content:result.data.result
+        }
+        setMessages(prev=>[...prev,aiResp]);
+        await UpdateMessages({
+            messages:[...messages,aiResp],
+            workspaceId:id
+        })
+        setLoading(false);
+    }
+
+    const onGenerate=async(input)=>{
+        setMessages(prev=>[...prev, {
+            role:'user',
+            content:input
+        }]);
+        setUserInput('');  
+    }
+
+    return (
     <div className='relative h-[85vh] flex flex-col'>
-        <div className='flex-1 overflow-y-auto'>
+        <div className='flex-1 overflow-y-scroll scrollbar-hide'>
             {messages?.map((msg,index)=>(
                 <div key={index} 
-                className='p-3 rounded-lg mb-2 flex gap-2 items-start'
+                className='p-3 rounded-lg mb-2 flex gap-2 items-center'
                 style={{
                     backgroundColor:Colors.CHAT_BACKGROUND,
                 }}>
-                    {msg?.role=='user' && <Image src={userDetail?.picture} alt="User Image"
+                    {msg?.role=='user' &&
+                    <Image src={userDetail?.picture} alt="User Image"
                     width={35} height={35} className='rounded-full'/>}
-                    <h2>{msg.content}</h2>
+                    <ReactMarkdown className='flex flex-col'>{msg.content}</ReactMarkdown>
+                    
                 </div>
             ))}
+            {loading && <div className='p-3 rounded-lg mb-2 flex gap-2 items-center leading-7'
+            style={{
+                backgroundColor:Colors.CHAT_BACKGROUND,
+            }}
+            >
+                <Loader2Icon className='animate-spin'/>
+                <h2>Generating response...</h2>
+                </div>
+            }
         </div>
 
         {/* INPUT SECTION */}
@@ -49,7 +103,8 @@ function ChatView() {
             backgroundColor: Colors.BACKGROUND,
         }}>
             <div className='flex gap-2'>
-                <textarea placeholder={Lookup.INPUT_PLACEHOLDER} 
+                <textarea placeholder={Lookup.INPUT_PLACEHOLDER}
+                    value={userInput}
                     className='outline-none bg-transparent w-full h-32 max-h-56 resize-none'
                     onChange={(event) => setUserInput(event.target.value)}
                 />
@@ -66,7 +121,7 @@ function ChatView() {
         </div>
 
     </div>
-  )
+    )
 }
 
 export default ChatView

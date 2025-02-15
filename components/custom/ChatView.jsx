@@ -35,7 +35,7 @@ function ChatView() {
     useEffect(() => {
         if(messages?.length>0)
         {
-            const role=messages[messages.length-1]?.role;
+            const role=messages[messages?.length-1]?.role;
             if(role=='user')
             {
                 GetAiResponse();

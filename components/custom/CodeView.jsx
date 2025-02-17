@@ -1,5 +1,5 @@
 "use client"
-import React, { useContext, useEffect, useState } from 'react'
+import React, { use, useContext, useEffect, useState } from 'react'
 import {
   SandpackProvider,
   SandpackLayout,
@@ -11,11 +11,34 @@ import Lookup from '@/data/Lookup';
 import axios from 'axios';
 import { MessagesContext } from '@/context/MessagesContext';
 import Prompt from '@/data/Prompt';
+import { useConvex, useMutation } from 'convex/react';
+import { api } from '@/convex/_generated/api';
+import { useParams } from 'next/navigation';
+import { Loader2Icon } from 'lucide-react';
+
 
 function CodeView() {
+  const {id}=useParams();
   const [activeTab, setActiveTab] = useState("code");
   const [files, setFiles] = useState(Lookup?.DEFAULT_FILE);
   const {messages, setMessages} = useContext(MessagesContext);
+  const UpdateFiles=useMutation(api.workspace.UpdateFiles);
+  const convex=useConvex();
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    id&&GetFiles();
+  },[id])
+
+  const GetFiles=async()=>{
+    setLoading(true);
+    const result=await convex.query(api.workspace.GetWorkspace, {
+      workspaceId:id
+    });
+    const mergedFiles={...Lookup.DEFAULT_FILE,...result?.fileData};
+    setFiles(mergedFiles);
+    setLoading(false);
+  }
 
   useEffect(() => {
           if(messages?.length>0)
@@ -29,7 +52,8 @@ function CodeView() {
       },[messages])
 
   const GenerateAiCode=async()=>{
-    const PROMPT=messages[messages?.length-1]?.content+" "+Prompt.CODE_GEN_PROMPT;
+    setLoading(true);
+    const PROMPT=JSON.stringify(messages)+" "+Prompt.CODE_GEN_PROMPT;
     const result=await axios.post('/api/gen-ai-code', {
       prompt:PROMPT
     });
@@ -38,10 +62,15 @@ function CodeView() {
 
     const mergedFiles={...Lookup.DEFAULT_FILE,...aiResp?.files};
     setFiles(mergedFiles);
+    await UpdateFiles({
+      workspaceId:id,
+      files:aiResp?.files
+    });
+    setLoading(false);
   }
 
   return (
-    <div>
+    <div className='relative'>
       <div className='bg-[#181818] w-full p-2 border'>
         <div className='flex items-center flex-wrap shrink-0 
         bg-black p-1 justify-center rounded-full 
@@ -81,6 +110,12 @@ function CodeView() {
           }
         </SandpackLayout>
       </SandpackProvider>
+
+      <div className='p-10 bg-gray-900 opacity-80
+      absolute top-0 rounded-lg w-full h-full flex items-center justify-center'>
+        <Loader2Icon className='animate-spin h-10 w-10 text-white'/>
+        <h2 className='text-white'>Generating your files...</h2>
+      </div>
     </div>
   )
 }

@@ -12,6 +12,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import axios from 'axios';
 import Prompt from '@/data/Prompt';
 import ReactMarkdown from 'react-markdown';
+import { useSidebar } from '../ui/sidebar';
 
 function ChatView() {
     const {id}=useParams();
@@ -21,6 +22,7 @@ function ChatView() {
     const [userInput, setUserInput] = useState();
     const [loading, setLoading] = useState(false);
     const UpdateMessages=useMutation(api.workspace.UpdateMessages);
+    const {toggleSidebar}=useSidebar();
     useEffect(() => {
         id && GetWorkspaceData();
     },[id])
@@ -72,7 +74,7 @@ function ChatView() {
 
     return (
     <div className='relative h-[85vh] flex flex-col'>
-        <div className='flex-1 overflow-y-scroll scrollbar-hide'>
+        <div className='flex-1 overflow-y-scroll scrollbar-hide pl-5'>
             {messages?.map((msg,index)=>(
                 <div key={index} 
                 className='p-3 rounded-lg mb-2 flex gap-2 items-center'
@@ -98,25 +100,31 @@ function ChatView() {
         </div>
 
         {/* INPUT SECTION */}
-        <div className='p-5 border rounded-xl max-w-xl w-full mt-3'
-        style={{
-            backgroundColor: Colors.BACKGROUND,
-        }}>
-            <div className='flex gap-2'>
-                <textarea placeholder={Lookup.INPUT_PLACEHOLDER}
-                    value={userInput}
-                    className='outline-none bg-transparent w-full h-32 max-h-56 resize-none'
-                    onChange={(event) => setUserInput(event.target.value)}
-                />
-                {
-                    userInput &&<ArrowRight 
-                    onClick={() => onGenerate(userInput)}
-                    className='bg-blue-500 p-2 h-9 w-9 rounded-md cursor-pointer'/>
-                }
-                
-            </div>
-            <div>
-                <Link className='h-5 w-5'/>
+        <div className='flex gap-2 items-end'>
+            {userDetail&&<Image src={userDetail?.picture}
+            className='rounded-full cursor-pointer'
+            onClick={toggleSidebar}
+            alt="User Image" width={30} height={30}/>}
+            <div className='p-5 border rounded-xl max-w-xl w-full mt-3'
+            style={{
+                backgroundColor: Colors.BACKGROUND,
+            }}>
+                <div className='flex gap-2'>
+                    <textarea placeholder={Lookup.INPUT_PLACEHOLDER}
+                        value={userInput}
+                        className='outline-none bg-transparent w-full h-32 max-h-56 resize-none'
+                        onChange={(event) => setUserInput(event.target.value)}
+                    />
+                    {
+                        userInput &&<ArrowRight 
+                        onClick={() => onGenerate(userInput)}
+                        className='bg-blue-500 p-2 h-9 w-9 rounded-md cursor-pointer'/>
+                    }
+                    
+                </div>
+                <div>
+                    <Link className='h-5 w-5'/>
+                </div>
             </div>
         </div>
 

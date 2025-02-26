@@ -29,7 +29,7 @@ function WorkspaceHistory() {
         <div>
             {workspaceList&&workspaceList?.map((workspace,index)=>(
                 <Link href={`/workspace/`+workspace?._id} key={index} >
-                <h2 onClick={toggleSidebar} className='text-sm text-gray-400 mt-2 
+                <h2 onClick={toggleSidebar} className='text-gray-400 mt-2 
                 font-light cursor-pointer hover:text-white'>
                     {workspace?.messages[0]?.content}
                 </h2>

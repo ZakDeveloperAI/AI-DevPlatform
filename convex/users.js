@@ -6,7 +6,8 @@ export const CreateUser=mutation({
         name: v.string(),
         email: v.string(),
         picture: v.string(),
-        uid: v.string()
+        uid: v.string(),
+        // token:v.optional(v.number()),
     },
     handler: async (ctx,args)=>{
         //If user already exist
@@ -20,7 +21,8 @@ export const CreateUser=mutation({
                 name: args.name,
                 email: args.email,
                 picture: args.picture,
-                uid: args.uid
+                uid: args.uid,
+                token:10000
             });
             console.log(result);
         }
@@ -35,5 +37,19 @@ export const GetUser=query({
     handler: async (ctx,args)=>{
         const user = await ctx.db.query("users").filter((q) => q.eq(q.field("email"), args.email)).collect();
         return user[0];
+    }
+})
+
+
+export const UpdateToken=mutation({
+    args: {
+        token: v.number(),
+        userId: v.id('users')
+    },
+    handler: async (ctx,args)=>{
+        const result=await ctx.db.patch(args.userId,{
+            token: args.token
+        });
+        return result;
     }
 })

@@ -16,8 +16,7 @@ export default function RootLayout({ children }) {
 
       >
         <ConvexClientProvider>
-          <Provider>
-            
+          <Provider >
             {children}
           </Provider>
         </ConvexClientProvider>

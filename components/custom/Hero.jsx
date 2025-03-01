@@ -58,9 +58,7 @@ function Hero() {
                 }
                 
             </div>
-            <div>
-                <Link className='h-5 w-5'/>
-            </div>
+
         </div>
 
         <div className='flex mt-8 flex-wrap max-w-2xl items-center justify-center gap-3'>

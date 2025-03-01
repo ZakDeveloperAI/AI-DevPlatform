@@ -82,7 +82,7 @@ function ChatView() {
     }
 
     const onGenerate=async(input)=>{
-        setMessages(prev=>[...prev, {
+        await setMessages(prev=>[...prev, {
             role:'user',
             content:input
         }]);

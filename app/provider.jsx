@@ -37,7 +37,7 @@ function Provider({ children }) {
     return (
         <div>
             <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_AUTH_CLIENT_ID_KEY}>
-                <PayPalScriptProvider options={{ clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID }}>
+                <PayPalScriptProvider options={{ clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID}}>
                     <UserDetailContext.Provider value={{userDetail, setUserDetail}}>
                         <MessagesContext.Provider value={{messages, setMessages}}>
                             <NextThemesProvider

@@ -6,14 +6,15 @@ import { useRouter } from 'next/navigation'
 function SideBarFooter() {
     const router=useRouter();
     const options=[
-        {
-            name:"Settings",
-            icon:Settings
-        },
-        {
-            name:"Help Center",
-            icon:HelpCircle
-        },
+        // {
+        //     name:"Settings",
+        //     icon:Settings,
+
+        // },
+        // {
+        //     name:"Help Center",
+        //     icon:HelpCircle
+        // },
         {
             name:"My Subscription",
             icon:Wallet,
@@ -21,7 +22,8 @@ function SideBarFooter() {
         },
         {
             name:"Sign Out",
-            icon:LogOut
+            icon:LogOut,
+            path:"/"
         }
     ]
 
